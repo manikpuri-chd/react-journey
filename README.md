@@ -1,2 +1,2 @@
 # react-journey
-react with chai aur code 
+react with Super Simple Dev
