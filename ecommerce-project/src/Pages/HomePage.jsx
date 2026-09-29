@@ -8,17 +8,21 @@ export function HomePage() {
 
   const[products, setProducts] = useState([])
   const[cart, setCart] = useState([])
+  const[loadError, setLoadError] = useState('')
 
   useEffect(()=>{
-     axios.get('http://localhost:3000/api/products')
-    .then((Response)=>{
-        setProducts(Response.data)
+    Promise.all([
+      axios.get('/api/products'),
+      axios.get('/api/cart-items'),
+    ])
+      .then(([productsResponse, cartResponse]) => {
+        setProducts(productsResponse.data)
+        setCart(cartResponse.data)
       })
-
-       axios.get('http://localhost:3000/api/cart-items')
-       .then((Response)=>{
-        setCart(Response.data)
-       })
+      .catch((error) => {
+        console.error('Failed to load the store data:', error)
+        setLoadError('Unable to load the store. Check that the backend is running on port 3000, then refresh.')
+      })
   },[])
  
     
@@ -30,6 +34,7 @@ export function HomePage() {
       <title>Ecommerce Homepage</title>
       <div className="home-page">
         <div className="products-grid">
+          {loadError && <p role="alert">{loadError}</p>}
           {products.map((product) => {
             return (
               <div key={product.id}className="product-container">
