@@ -4,20 +4,19 @@ import { useEffect , useState } from "react";
 import "./HomePage.css";
 
 
-export function HomePage() {
+export function HomePage({cart}) {
 
   const[products, setProducts] = useState([])
-  const[cart, setCart] = useState([])
+  
   const[loadError, setLoadError] = useState('')
 
   useEffect(()=>{
-    Promise.all([
-      axios.get('/api/products'),
-      axios.get('/api/cart-items'),
-    ])
-      .then(([productsResponse, cartResponse]) => {
+    
+      axios.get('/api/products')
+      
+    
+      .then((productsResponse) => {
         setProducts(productsResponse.data)
-        setCart(cartResponse.data)
       })
       .catch((error) => {
         console.error('Failed to load the store data:', error)
