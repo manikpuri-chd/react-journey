@@ -5,8 +5,8 @@ import { DeliveryOptions } from "./DeliveryOptions";
 import axios from "axios";
 
 export function OrderSummary({ cart,deliveryOptions , loadCart}) {
-  const [isUpdating, setIsUpdating] = useState({});
-  const [quantity, setQuantity] = useState({});
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [quantity, setQuantity] = useState("");
 
   return (
     <div className="order-summary">
@@ -25,13 +25,10 @@ export function OrderSummary({ cart,deliveryOptions , loadCart}) {
           const updateCartItem = async (event) => {
             event.preventDefault();
             await axios.put(`/api/cart-items/${cartItem.productId}`, {
-              quantity: Number(quantity[cartItem.productId])
+              quantity: Number(quantity)
             });
             await loadCart();
-            setIsUpdating((current) => ({
-              ...current,
-              [cartItem.productId]: false,
-            }));
+            setEditingProductId(null);
           }
 
           return (
@@ -53,21 +50,16 @@ export function OrderSummary({ cart,deliveryOptions , loadCart}) {
                   </div>
                   <div className="product-quantity">
                     <span>Quantity: </span>
-                      {isUpdating[cartItem.productId] ? (
+                      {editingProductId === cartItem.productId ? (
                         <form onSubmit={updateCartItem}>
                           <input
                             type="number"
                             min="1"
                             step="1"
                             required
-                            value={
-                              quantity[cartItem.productId] ?? cartItem.quantity
-                            }
+                            value={quantity}
                             onChange={(event) =>
-                              setQuantity((current) => ({
-                                ...current,
-                                [cartItem.productId]: event.target.value,
-                              }))
+                              setQuantity(event.target.value)
                             }
                           />
                           <button type="submit">Save</button>
@@ -80,14 +72,8 @@ export function OrderSummary({ cart,deliveryOptions , loadCart}) {
                           <span
                             className="update-quantity-link link-primary"
                             onClick={() => {
-                              setQuantity((current) => ({
-                                ...current,
-                                [cartItem.productId]: cartItem.quantity,
-                              }));
-                              setIsUpdating((current) => ({
-                                ...current,
-                                [cartItem.productId]: true,
-                              }));
+                              setQuantity(cartItem.quantity);
+                              setEditingProductId(cartItem.productId);
                             }}
                           >
                             Update

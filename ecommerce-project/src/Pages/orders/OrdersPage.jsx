@@ -5,8 +5,16 @@ import { formatMoney } from "../../utils/money";
 import { Header } from "../../Components/Header";
 import "./OrdersPage.css";
 
-export function OrdersPage({ cart }) {
+export function OrdersPage({ cart, loadCart }) {
   const [orders, setOrders] = useState([]);
+
+  const addToCart = async (product, quantity) => {
+                   await axios.post('/api/cart-items', {
+                      productId: product.id,
+                      quantity
+                    });
+                    await loadCart();
+                   }
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -55,7 +63,10 @@ export function OrdersPage({ cart }) {
                     return (
                       <Fragment key={orderProduct.product.id}>
                         <div className="product-image-container">
-                          <img src="images/products/athletic-cotton-socks-6-pairs.jpg" />
+                          <img
+                            src={orderProduct.product.image}
+                            alt={orderProduct.product.name}
+                          />
                         </div>
 
                         <div className="product-details">
@@ -66,7 +77,12 @@ export function OrdersPage({ cart }) {
                             Arriving on: {dayjs(orderProduct.estimatedDeliveryTimeMs).format('MMMM D')}
                           </div>
                           <div className="product-quantity">Quantity: {orderProduct.quantity}</div>
-                          <button className="buy-again-button button-primary">
+                          <button
+                            className="buy-again-button button-primary"
+                            onClick={() =>
+                              addToCart(orderProduct.product, orderProduct.quantity)
+                            }
+                          >
                             <img
                               className="buy-again-icon"
                               src="images/icons/buy-again.png"
